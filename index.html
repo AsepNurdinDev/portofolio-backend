@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio — Backend Engineer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green: #00ff88;
+      --green-dim: #00cc6a;
+      --green-faint: rgba(0,255,136,0.07);
+      --bg: #0a0c0a;
+      --bg2: #0e110e;
+      --bg3: #131713;
+      --border: rgba(0,255,136,0.15);
+      --text: #c8d6c8;
+      --text-dim: #5a6e5a;
+      --red: #ff4757;
+      --yellow: #ffd32a;
+      --blue: #2ed573;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    ::selection { background: rgba(0,255,136,0.25); }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 2px; }
+
+    /* Scanline effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .green { color: var(--green); }
+    .dim { color: var(--text-dim); }
+    .red { color: var(--red); }
+    .yellow { color: var(--yellow); }
+
+    /* Prompt prefix */
+    .prompt::before {
+      content: '$ ';
+      color: var(--green);
+    }
+
+    /* Blinking cursor */
+    .cursor::after {
+      content: '█';
+      color: var(--green);
+      animation: blink 1.2s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Fade in stagger */
+    .fade-in { opacity: 0; transform: translateY(12px); animation: fadeUp 0.5s ease forwards; }
+    @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+    .d1{animation-delay:.1s} .d2{animation-delay:.2s} .d3{animation-delay:.3s}
+    .d4{animation-delay:.4s} .d5{animation-delay:.5s} .d6{animation-delay:.6s}
+    .d7{animation-delay:.7s} .d8{animation-delay:.8s}
+
+    /* Card */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: border-color .25s, background .25s;
+    }
+    .card:hover { border-color: rgba(0,255,136,0.4); background: var(--bg3); }
+
+    /* Tag */
+    .tag {
+      display: inline-block;
+      background: rgba(0,255,136,0.08);
+      border: 1px solid rgba(0,255,136,0.2);
+      color: var(--green);
+      padding: 1px 8px;
+      font-size: 11px;
+      border-radius: 2px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .tag-gray {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.1);
+      color: var(--text-dim);
+    }
+    .tag-red {
+      background: rgba(255,71,87,0.08);
+      border-color: rgba(255,71,87,0.2);
+      color: var(--red);
+    }
+    .tag-yellow {
+      background: rgba(255,211,42,0.08);
+      border-color: rgba(255,211,42,0.2);
+      color: var(--yellow);
+    }
+
+    /* Section header */
+    .section-header {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .section-header::before { content: '// '; color: var(--text-dim); }
+
+    /* Nav */
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 12px;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--green); }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 2px;
+      background: rgba(0,255,136,0.1);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 1px;
+      transition: width 1s ease;
+    }
+
+    /* Terminal window */
+    .terminal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+    .terminal-header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    /* Status badge */
+    .status-live::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)}
+      50%{box-shadow:0 0 0 4px rgba(0,255,136,0)}
+    }
+    .status-dev::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--yellow);
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    /* Mobile nav toggle */
+    #nav-menu { display:flex; }
+    @media(max-width:640px){
+      #nav-menu { display:none; flex-direction:column; }
+      #nav-menu.open { display:flex; }
+    }
+
+    /* Typewriter */
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      animation: typing 2s steps(40,end) .3s both;
+    }
+    @keyframes typing { from{width:0} to{width:100%} }
+
+    /* Link */
+    a.underline-green {
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0,255,136,0.3);
+      transition: border-color .2s;
+    }
+    a.underline-green:hover { border-color: var(--green); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="sticky top-0 z-50 border-b fade-in" style="border-color:var(--border);background:rgba(10,12,10,0.95);backdrop-filter:blur(8px)">
+  <div class="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="green font-bold text-sm">~/@asepnrdn</span>
+      <span class="dim text-xs cursor"></span>
+    </div>
+    <nav id="nav-menu" class="flex items-center gap-6">
+      <a href="#about">about</a>
+      <a href="#stack">stack</a>
+      <a href="#projects">projects</a>
+      <a href="#contact">contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-6">
+
+  <!-- HERO -->
+  <section class="py-20 fade-in d1">
+    <div class="terminal mb-8 inline-block">
+      <div class="terminal-header">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <span class="dim text-xs ml-2">asepnrdn@server</span>
+      </div>
+      <div class="p-5 space-y-2 text-sm" style="min-width:340px">
+        <p class="dim">Last login: Sat Mar 28 2026 from 127.0.0.1</p>
+        <p class="prompt">whoami</p>
+        <p class="green font-semibold text-lg">Backend Engineer</p>
+        <p class="prompt">cat bio.txt</p>
+        <p style="color:var(--text)">Membangun sistem yang scalable, aman, dan efisien.</p>
+        <p style="color:var(--text)">Dari API hingga deployment — saya handle semua.</p>
+        <p class="prompt dim">▊</p>
+      </div>
+    </div>
+
+    <div class="mt-6 space-y-1">
+      <h1 class="text-3xl font-bold" style="color:#f0f5f0">Asep Nurdin</h1>
+      <p class="text-base" style="color:var(--text-dim)">Backend Engineer · API · Infrastructure · Deployment</p>
+    </div>
+
+    <div class="flex flex-wrap gap-3 mt-6">
+      <a href="#projects" class="underline-green text-sm">lihat proyek</a>
+      <span class="dim">·</span>
+      <a href="mailto:asepnurdin1902@gmail.com" class="underline-green text-sm">hubungi saya</a>
+      <span class="dim">·</span>
+      <a href="https://github.com/AsepNurdinDev" target="_blank" class="underline-green text-sm">github</a>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ABOUT -->
+  <section id="about" class="pb-16 fade-in d2">
+    <p class="section-header">about</p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="space-y-4 text-sm" style="color:var(--text)">
+        <p>
+          Saya adalah backend engineer yang fokus pada pembuatan sistem yang reliable dan maintainable.
+          Saat ini sedang aktif mengembangkan <span class="green">Project Medicare</span> — sistem yang sudah
+          berjalan di server sendiri dengan stack production-grade.
+        </p>
+        <p>
+          Saya percaya backend yang baik bukan hanya soal kode yang berjalan, tapi soal
+          <span style="color:#f0f5f0">arsitektur yang tepat</span>, keamanan yang solid, dan
+          deployment yang zero-downtime.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <div class="card p-4 text-sm">
+          <p class="dim text-xs mb-2">// fokus saat ini</p>
+          <ul class="space-y-1" style="color:var(--text)">
+            <li>→ REST API development dengan Golang & Gin</li>
+            <li>→ Self-hosted deployment & server management</li>
+            <li>→ Auth system: JWT, OAuth (Google)</li>
+            <li>→ Containerisasi dengan Docker</li>
+          </ul>
+        </div>
+        <div class="card p-4 text-sm">
+          <p class="dim text-xs mb-2">// tersedia untuk</p>
+          <div class="flex flex-wrap gap-2 mt-1">
+            <span class="tag">Backend Dev</span>
+            <span class="tag">API Design</span>
+            <span class="tag">Server Setup</span>
+            <span class="tag">Freelance</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- TECH STACK -->
+  <section id="stack" class="pb-16 fade-in d3">
+    <p class="section-header">tech stack</p>
+
+    <div class="grid md:grid-cols-3 gap-4">
+
+      <!-- Backend -->
+      <div class="card p-5">
+        <p class="dim text-xs mb-4">// backend</p>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">Golang + Gin</span>
+              <span class="dim">primary</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">PHP + Laravel</span>
+              <span class="dim">proficient</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">REST API</span>
+              <span class="dim">advanced</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">JWT Auth</span>
+              <span class="dim">advanced</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database & Infra -->
+      <div class="card p-5">
+        <p class="dim text-xs mb-4">// database & infra</p>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">PostgreSQL</span>
+              <span class="dim">proficient</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">Docker</span>
+              <span class="dim">proficient</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">Nginx</span>
+              <span class="dim">proficient</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="green">Ubuntu Server</span>
+              <span class="dim">proficient</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tools & Other -->
+      <div class="card p-5">
+        <p class="dim text-xs mb-4">// tools & other</p>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span style="color:var(--text)">Cloudflare</span>
+              <span class="dim">used</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span style="color:var(--text)">Next.js</span>
+              <span class="dim">supporting</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span style="color:var(--text)">JavaScript</span>
+              <span class="dim">proficient</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span style="color:var(--text)">OAuth 2.0</span>
+              <span class="dim">used</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Stack quick tags -->
+    <div class="flex flex-wrap gap-2 mt-5">
+      <span class="tag">Go</span>
+      <span class="tag">Gin</span>
+      <span class="tag">PHP</span>
+      <span class="tag">Laravel</span>
+      <span class="tag">PostgreSQL</span>
+      <span class="tag">Docker</span>
+      <span class="tag">Nginx</span>
+      <span class="tag">Ubuntu</span>
+      <span class="tag">Cloudflare</span>
+      <span class="tag">JWT</span>
+      <span class="tag">OAuth2</span>
+      <span class="tag">REST API</span>
+      <span class="tag-gray">Next.js</span>
+      <span class="tag-gray">JavaScript</span>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="pb-16 fade-in d4">
+    <p class="section-header">projects</p>
+
+    <div class="grid md:grid-cols-2 gap-5">
+
+      <!-- Medicare -->
+      <div class="card p-6 md:col-span-2" style="border-color:rgba(0,255,136,0.25)">
+        <div class="flex items-start justify-between flex-wrap gap-3 mb-4">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <h3 class="font-semibold" style="color:#f0f5f0">Project Medicare</h3>
+              <span class="tag-yellow text-xs">WIP</span>
+              <span class="text-xs status-dev" style="color:var(--yellow)">In Development</span>
+            </div>
+            <p class="text-xs dim">Sistem manajemen kesehatan — full production setup</p>
+          </div>
+          <a href="https://github.com/tenangin-aja/tenangin" class="underline-green text-xs">lihat repo →</a>
+        </div>
+
+        <div class="terminal mb-4">
+          <div class="terminal-header">
+            <span class="dim text-xs">docker-compose.yml</span>
+          </div>
+          <div class="p-4 text-xs space-y-1" style="color:var(--text)">
+            <p><span class="green">services:</span></p>
+            <p>&nbsp;&nbsp;<span style="color:#2ed573">api:</span> <span class="dim"># Golang + Gin</span></p>
+            <p>&nbsp;&nbsp;<span style="color:#2ed573">web:</span> <span class="dim"># Next.js frontend</span></p>
+            <p>&nbsp;&nbsp;<span style="color:#2ed573">db:</span> &nbsp;<span class="dim"># PostgreSQL</span></p>
+            <p>&nbsp;&nbsp;<span style="color:#2ed573">proxy:</span> <span class="dim"># Nginx reverse proxy</span></p>
+            <p><span class="green">networks:</span> <span class="dim"># Cloudflare Tunnel ✓</span></p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="tag">Golang</span>
+          <span class="tag">Gin</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Nginx</span>
+          <span class="tag">Cloudflare</span>
+          <span class="tag-gray">Next.js</span>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="text-center p-3" style="background:var(--green-faint);border:1px solid var(--border);border-radius:2px">
+            <p class="green text-sm font-bold">Self-hosted</p>
+            <p class="dim text-xs">VPS sendiri</p>
+          </div>
+          <div class="text-center p-3" style="background:var(--green-faint);border:1px solid var(--border);border-radius:2px">
+            <p class="green text-sm font-bold">Docker</p>
+            <p class="dim text-xs">Containerized</p>
+          </div>
+          <div class="text-center p-3" style="background:var(--green-faint);border:1px solid var(--border);border-radius:2px">
+            <p class="green text-sm font-bold">CF Tunnel</p>
+            <p class="dim text-xs">Secure proxy</p>
+          </div>
+          <div class="text-center p-3" style="background:var(--green-faint);border:1px solid var(--border);border-radius:2px">
+            <p class="green text-sm font-bold">REST API</p>
+            <p class="dim text-xs">Full endpoints</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth System -->
+      <div class="card p-6">
+        <div class="flex items-start justify-between mb-3">
+          <div>
+            <h3 class="font-semibold mb-1" style="color:#f0f5f0">Auth Service</h3>
+            <span class="text-xs status-live" style="color:var(--green)">Complete</span>
+          </div>
+          <a href="https://github.com/AsepNurdinDev/auth-server" class="underline-green text-xs">repo →</a>
+        </div>
+        <p class="text-xs mb-4" style="color:var(--text)">
+          Sistem autentikasi lengkap dengan Google OAuth 2.0 dan email verification. JWT-based session management.
+        </p>
+        <div class="text-xs space-y-1 mb-4" style="color:var(--text-dim)">
+          <p>✓ Google OAuth login flow</p>
+          <p>✓ Email verification via SMTP</p>
+          <p>✓ JWT access & refresh token</p>
+          <p>✓ Secure password hashing</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag">Golang</span>
+          <span class="tag">JWT</span>
+          <span class="tag">OAuth2</span>
+          <span class="tag">PostgreSQL</span>
+        </div>
+      </div>
+
+      <!-- REST API -->
+      <div class="card p-6">
+        <div class="flex items-start justify-between mb-3">
+          <div>
+            <h3 class="font-semibold mb-1" style="color:#f0f5f0">REST API Template</h3>
+            <span class="text-xs status-live" style="color:var(--green)">Complete</span>
+          </div>
+          <a href="https://github.com/AsepNurdinDev/restfull-api-product-go" class="underline-green text-xs">repo →</a>
+        </div>
+        <p class="text-xs mb-4" style="color:var(--text)">
+          Boilerplate REST API production-ready dengan struktur clean architecture, middleware, dan error handling yang konsisten.
+        </p>
+        <div class="text-xs space-y-1 mb-4" style="color:var(--text-dim)">
+          <p>✓ Clean architecture pattern</p>
+          <p>✓ Request validation & error handling</p>
+          <p>✓ Rate limiting middleware</p>
+          <p>✓ Swagger documentation</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag">Golang</span>
+          <span class="tag">Gin</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">REST</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- INFRASTRUCTURE -->
+  <section class="pb-16 fade-in d5">
+    <p class="section-header">infrastructure experience</p>
+    <div class="grid md:grid-cols-3 gap-4">
+
+      <div class="card p-5">
+        <p class="dim text-xs mb-3">// server setup</p>
+        <ul class="text-xs space-y-1" style="color:var(--text)">
+          <li>→ Ubuntu Server provisioning</li>
+          <li>→ Nginx reverse proxy config</li>
+          <li>→ SSL/TLS termination</li>
+          <li>→ Firewall & security hardening</li>
+        </ul>
+      </div>
+
+      <div class="card p-5">
+        <p class="dim text-xs mb-3">// containerization</p>
+        <ul class="text-xs space-y-1" style="color:var(--text)">
+          <li>→ Docker multi-service setup</li>
+          <li>→ Docker Compose orchestration</li>
+          <li>→ Container networking</li>
+          <li>→ Volume management</li>
+        </ul>
+      </div>
+
+      <div class="card p-5">
+        <p class="dim text-xs mb-3">// networking & cdn</p>
+        <ul class="text-xs space-y-1" style="color:var(--text)">
+          <li>→ Cloudflare Tunnel integration</li>
+          <li>→ DNS management</li>
+          <li>→ DDoS protection setup</li>
+          <li>→ Domain routing</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- CONTACT -->
+  <section id="contact" class="pb-20 fade-in d6">
+    <p class="section-header">contact</p>
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+      <div>
+        <p class="text-sm mb-5" style="color:var(--text)">
+          Terbuka untuk proyek freelance, kolaborasi, atau diskusi teknikal.
+          Lebih suka komunikasi via email atau GitHub.
+        </p>
+
+        <div class="space-y-3">
+          <div class="flex items-center gap-3 text-sm">
+            <span class="dim w-16 shrink-0">email</span>
+            <a href="mailto:asepnurdin1902@gmail.com" class="underline-green">asepnurdin1902@gmail.com</a>
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            <span class="dim w-16 shrink-0">github</span>
+            <a href="https://github.com/AsepNurdinDev" target="_blank" class="underline-green">github.com/AsepNurdinDev</a>
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            <span class="dim w-16 shrink-0">linkedin</span>
+            <a href="https://id.linkedin.com/in/aseppnurdin" class="underline-green">linkedin.com/in/aseppnurdin</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-header">
+          <div class="dot" style="background:#ff5f57"></div>
+          <div class="dot" style="background:#febc2e"></div>
+          <div class="dot" style="background:#28c840"></div>
+          <span class="dim text-xs ml-2">contact.sh</span>
+        </div>
+        <div class="p-5 text-xs space-y-2" style="color:var(--text)">
+          <p class="prompt">ping asepnrdn.dev</p>
+          <p class="green">PING asepnrdn.dev: 56 data bytes</p>
+          <p>64 bytes from asepnrdn.dev: icmp_seq=0 time=12ms</p>
+          <p>64 bytes from asepnrdn.dev: icmp_seq=1 time=10ms</p>
+          <p class="dim">--- asepnrdn.dev ping statistics ---</p>
+          <p><span class="green">2 packets transmitted</span>, 2 received, <span class="green">0% packet loss</span></p>
+          <p class="prompt dim">▊</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="border-t py-6" style="border-color:var(--border)">
+  <div class="max-w-5xl mx-auto px-6 flex items-center justify-between flex-wrap gap-3">
+    <span class="text-xs dim">© 2026 Asep Nurdin</span>
+    <span class="text-xs dim">backend-dev v1.0.0</span>
+  </div>
+</footer>
+
+<script>
+  // Animate progress bars on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.progress-fill').forEach(bar => {
+          bar.style.width = bar.style.width || '0%';
+        });
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.card').forEach(el => observer.observe(el));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
